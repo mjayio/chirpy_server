@@ -1,0 +1,32 @@
+-- +goose Up
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    email TEXT NOT NULL,
+    hashed_password TEXT NOT NULL DEFAULT 'unset',
+    token TEXT NOT NULL DEFAULT 'unset',
+    is_chirpy_red BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE chirps (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    body TEXT NOT NULL
+);
+
+CREATE TABLE refresh_tokens (
+    token TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    revoked_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
+);
+
+-- +goose Down
+DROP TABLE chirps;
+DROP TABLE refresh_tokens;
+DROP TABLE users;
